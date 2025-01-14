@@ -17,13 +17,13 @@ Useful for [Split-computing for DNNs](https://arxiv.org/abs/1902.01000)
   - STE for quantization only: Offers a middle ground for training with quantization-aware constraints.
 - **Modular Design**: While the pipeline omits Huffman and Run-Length Encoding, these lossless techniques can be added in post-processing for complete JPEG functionality.
   
-## Image 1
+## Quality 1
 ![Cat Quality 1](./imgs/cat_quality_1.PNG)
 
-## Image 2
+## Quality 10
 ![Cat Quality 10](./imgs/cat_quality_10.PNG)
 
-## Image 3
+## Quality 100
 ![Cat Quality 100](./imgs/cat_quality_100.PNG)
 
 
