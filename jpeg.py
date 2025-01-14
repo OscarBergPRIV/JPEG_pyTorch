@@ -420,7 +420,7 @@ if __name__ == "__main__":
 
     print("="*50)
 
-    image_path = './imgs/cat_superres_with_ort.jpg'
+    image_path = './cat_superres_with_ort.jpg'
     img_tensor = read_jpeg_to_torch_8bit(image_path)
     img_tensor = img_tensor.to(device)
     channel_index = 0
