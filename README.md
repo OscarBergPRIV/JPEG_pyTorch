@@ -17,10 +17,14 @@ Useful for [Split-computing for DNNs](https://arxiv.org/abs/1902.01000)
   - STE for quantization only: Offers a middle ground for training with quantization-aware constraints.
 - **Modular Design**: While the pipeline omits Huffman and Run-Length Encoding, these lossless techniques can be added in post-processing for complete JPEG functionality.
   
-Here is the result for 1, 10 and 100% JPEG for a single-channel image of a cat
-![Cat Quality 1](./imgs/cat_quality_1.png)
-![Cat Quality 10](./imgs/cat_quality_10.png)
-![Cat Quality 100](./imgs/cat_quality_100.png)
+## Image 1
+![Cat Quality 1](./imgs/cat_quality_1.PNG)
+
+## Image 2
+![Cat Quality 10](./imgs/cat_quality_10.PNG)
+
+## Image 3
+![Cat Quality 100](./imgs/cat_quality_100.PNG)
 
 
 ## How It Works
