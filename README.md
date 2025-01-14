@@ -32,4 +32,4 @@ The implementation adheres to the following steps:
 Clone this repository:
 ```bash
 git clone https://github.com/your-username/your-repo-name.git
-cd your-repo-name
+cd JPEG_pyTorch
