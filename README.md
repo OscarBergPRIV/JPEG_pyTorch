@@ -41,5 +41,5 @@ The implementation adheres to the following steps:
 ## Installation
 Clone this repository:
 ```bash
-git clone https://github.com/your-username/your-repo-name.git
+git clone https://github.com/OscarBergPRIV/JPEG_pyTorch.git
 cd JPEG_pyTorch
