@@ -8,48 +8,22 @@ from torchvision import transforms
 from torchvision.io import read_image
 import matplotlib.pyplot as plt
 
-
 class BlockSplitting(nn.Module):
-    """
-    Module to split an image into non-overlapping blocks.
-
-    This is useful in JPEG compression where the image is divided into
-    blocks (commonly 8x8) for processing such as DCT transformation.
-    """
-
     def __init__(self, block_size=8):
-        """
-        Initializes the BlockSplitting module.
-
-        Args:
-            block_size (int, optional): Size of each block. Default is 8.
-        """
         super().__init__()
-
         self.block_size = block_size
 
     def forward(self, image):
-        """
-        Splits the input image into non-overlapping blocks.
-
-        Args:
-            image (torch.Tensor): Input image tensor of shape (B, C, H, W),
-
-        Returns:
-            torch.Tensor: Tensor containing image blocks with shape (B, num_blocks * C, block_size, block_size),
-                          where num_blocks = (H // block_size) * (W // block_size).
-        """
         B, C, H, W = image.shape
         if H % self.block_size != 0 or W % self.block_size != 0:
             raise ValueError(f"Image dimensions ({H}x{W}) are not divisible by block size {self.block_size}.")
 
-        image_reshaped = image.view(B, H // self.block_size, self.block_size, -1, self.block_size)
-
-        image_transposed = image_reshaped.permute(0, 1, 3, 2, 4)
-
-        blocks = image_transposed.contiguous().view(B, -1, self.block_size, self.block_size)
-
+        image_reshaped = image.view(B, C, H // self.block_size, self.block_size, W // self.block_size, self.block_size)
+        image_transposed = image_reshaped.permute(0, 1, 2, 4, 3, 5)
+        num_blocks = (H // self.block_size) * (W // self.block_size)
+        blocks = image_transposed.contiguous().view(B, C * num_blocks, self.block_size, self.block_size)
         return blocks
+
 
 class BlockMerging(nn.Module):
     """
@@ -59,36 +33,25 @@ class BlockMerging(nn.Module):
     """
 
     def __init__(self, block_size=8):
-        """
-        Initializes the BlockMerging module.
-
-        Args:
-            block_size (int, optional): Size of each block. Default is 8.
-        """
         super().__init__()
-
         self.block_size = block_size
 
-    def forward(self, blocks, original_size):
-        """
-        Merges blocks to reconstruct the original image.
+    def forward(self, blocks, original_size, num_channels):
+        H, W = original_size  # Original height and width
+        B = blocks.shape[0]   # Batch size
 
-        Args:
-            blocks (torch.Tensor): Tensor containing image blocks with shape (B, num_blocks * C, block_size, block_size),
-                                   where num_blocks = (H // block_size) * (W // block_size).
-            original_size (tuple): Tuple containing the original image dimensions as (H, W).
+        # Compute number of blocks along height and width
+        num_blocks_h = H // self.block_size
+        num_blocks_w = W // self.block_size
 
-        Returns:
-            torch.Tensor: Reconstructed image tensor of shape (B, C, H, W).
-        """
-        H, W = original_size
-        B = blocks.shape[0]
+        # Reshape blocks to separate (C, num_blocks_h, num_blocks_w, block_size, block_size)
+        image_reshaped = blocks.view(B, num_channels, num_blocks_h, num_blocks_w, self.block_size, self.block_size)
 
-        image_reshaped = blocks.view(B, H//self.block_size, W//self.block_size, self.block_size, self.block_size)
+        # Permute dimensions to arrange blocks correctly
+        image_transposed = image_reshaped.permute(0, 1, 2, 4, 3, 5)
 
-        image_transposed = image_reshaped.permute(0, 1, 3, 2, 4)
-
-        image = image_transposed.contiguous().view(B, 1, H, W)
+        # Merge the block dimensions to reconstruct the full image
+        image = image_transposed.contiguous().view(B, num_channels, H, W)
 
         return image
 
@@ -351,6 +314,7 @@ class QuantizationModule(nn.Module):
 
 
     def forward(self, input_tensor):
+        num_channels = input_tensor.shape[1]
         quantized_tensor, min_value, max_value = self.quantize(input_tensor)
 
         quantized_tensor = self.bsplit(quantized_tensor)
@@ -359,7 +323,7 @@ class QuantizationModule(nn.Module):
         dct_coeffs = self.dequantCF(dct_coeffs)
         reconstructed_tensor = self.idct_2d_explicit(dct_coeffs)
         output_tensor = self.dequantize(reconstructed_tensor, min_value, max_value)
-        output_tensor = self.bmerge(output_tensor, (self.h, self.w))
+        output_tensor = self.bmerge(output_tensor, (self.h, self.w), num_channels=num_channels)
         return output_tensor
 
 
