@@ -18,7 +18,7 @@ Useful for [Split-computing for DNNs](https://arxiv.org/abs/1902.01000)
 - **Modular Design**: While the pipeline omits Huffman and Run-Length Encoding, these lossless techniques can be added in post-processing for complete JPEG functionality.
   
 ## JPEG comparison
-![Cat compressed](./imgs/catJPEG.PNG)
+![Cat compressed](./catJPEG.PNG)
 
 
 
